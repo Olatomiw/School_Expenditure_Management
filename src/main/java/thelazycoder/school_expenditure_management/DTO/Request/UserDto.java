@@ -9,10 +9,24 @@ import thelazycoder.school_expenditure_management.Model.User;
 import java.io.Serializable;
 
 /**
- * DTO for {@link thelazycoder.school_expenditure_management.Model.User}
- */
-public record UserDto(@NotNull(message = "username cannot be empty") String username,
-                      @NotNull @Size(min = 8, max = 16) @Pattern(regexp = "@,_,-,$") String password,
-                      @NotNull(message = "Cannot be empty") @Email(message = "input valid email", regexp = "@") String email,
-                      User.Role role, Boolean active) implements Serializable {
+ * DTO for {@link thelazycoder.school_expenditure_management.Model.User} **/
+public record UserDto(
+        @NotNull(message = "Firstname cannot be empty") String firstname,
+
+        @NotNull(message = "Lastname cannot be empty") String lastname,
+
+        @NotNull(message = "Username cannot be empty") String username,
+
+        @NotNull
+        @Size(min = 8, max = 16, message = "Password must be between 8 and 16 characters")
+        @Pattern(regexp = "^(?=.*[@,_,-,$]).{8,16}$", message = "Password must contain at least one special character (@, _, -, $)")
+        String password,
+
+        @NotNull(message = "Email cannot be empty")
+        @Email(message = "Enter a valid email address", regexp = "^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
+        String email,
+
+        @NotNull(message = "Role cannot be empty")
+        User.Role role
+) implements Serializable {
 }
