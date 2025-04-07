@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import thelazycoder.school_expenditure_management.Repository.UserRepository;
 import thelazycoder.school_expenditure_management.ServiceImpl.CustomUserDetailsService;
 
@@ -27,9 +29,10 @@ import thelazycoder.school_expenditure_management.ServiceImpl.CustomUserDetailsS
 public class SecurityConfig {
 
     private final UserRepository userRepository;
-
-    public SecurityConfig(UserRepository userRepository) {
+    private final JWTFilterChain jwtFilterChain;
+    public SecurityConfig(UserRepository userRepository, JWTFilterChain jwtFilterChain) {
         this.userRepository = userRepository;
+        this.jwtFilterChain = jwtFilterChain;
     }
 
     @Bean
@@ -42,6 +45,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(e->e
                         .requestMatchers("/api/user/**").permitAll()
                         .anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider())
+                .sessionManagement(e->e.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class)
                 .build();
         return chain;
     }
@@ -67,7 +73,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userDetailsService(userRepository));
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());

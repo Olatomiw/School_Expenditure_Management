@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "department")
-@Data
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,4 +37,69 @@ public class Department {
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public User getHead() {
+        return head;
+    }
+
+    public void setHead(User head) {
+        this.head = head;
+    }
+
+    public BigDecimal getTotalBudget() {
+        return totalBudget;
+    }
+
+    public void setTotalBudget(BigDecimal totalBudget) {
+        this.totalBudget = totalBudget;
+    }
+
+    public LocalDate getBudgetStartDate() {
+        return budgetStartDate;
+    }
+
+    public void setBudgetStartDate(LocalDate budgetStartDate) {
+        this.budgetStartDate = budgetStartDate;
+    }
+
+    public LocalDate getBudgetEndDate() {
+        return budgetEndDate;
+    }
+
+    public void setBudgetEndDate(LocalDate budgetEndDate) {
+        this.budgetEndDate = budgetEndDate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
