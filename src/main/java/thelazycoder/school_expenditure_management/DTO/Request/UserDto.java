@@ -24,9 +24,6 @@ public record UserDto(
 
         @NotNull(message = "Email cannot be empty")
         @Email(message = "Enter a valid email address", regexp = "^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
-        String email,
-
-        @NotNull(message = "Role cannot be empty")
-        User.Role role
+        String email
 ) implements Serializable {
 }

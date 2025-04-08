@@ -9,17 +9,23 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import thelazycoder.school_expenditure_management.Configuration.JWTConfig;
 import thelazycoder.school_expenditure_management.DTO.Request.AuthDto;
+import thelazycoder.school_expenditure_management.DTO.Request.RoleUpdateRequest;
 import thelazycoder.school_expenditure_management.DTO.Request.UserDto;
 import thelazycoder.school_expenditure_management.DTO.Response.ApiResponse;
 import thelazycoder.school_expenditure_management.Model.User;
-import thelazycoder.school_expenditure_management.Model.UserResponse;
+import thelazycoder.school_expenditure_management.DTO.Response.UserResponse;
+import thelazycoder.school_expenditure_management.Model.User.Role;
 import thelazycoder.school_expenditure_management.Repository.UserRepository;
 import thelazycoder.school_expenditure_management.Service.UserService;
 import thelazycoder.school_expenditure_management.Utility.Mapper.EntityMapper;
+import thelazycoder.school_expenditure_management.Utility.ResponseUtil;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 @Log4j2
@@ -49,12 +55,11 @@ public class UserServiceImpl implements UserService {
         User user = entityMapper.mapperEntityToUser(userDto);
         User save = userRepository.save(user);
         UserResponse userResponse = entityMapper.mapUserToUserResponse(save);
-        ApiResponse<UserResponse> apiResponse = new ApiResponse<>(
+        ApiResponse<UserResponse> success = ResponseUtil.success(
                 HttpStatus.OK.value(),
-                "User Registered",
                 userResponse
         );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(success, HttpStatus.OK);
     }
 
     @Transactional
@@ -71,5 +76,54 @@ public class UserServiceImpl implements UserService {
         }
         String token = jwtConfig.createToken(authentication);
         return new ResponseEntity<>(token, HttpStatus.OK);
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity<?> updateUserRole(UUID id, RoleUpdateRequest request) {
+        Role role = validateRole(request.name());
+        userRepository.findById(id)
+                .ifPresentOrElse(
+                        user -> {
+                            user.setRole(Role.valueOf(role.toString()));
+                            userRepository.save(user);
+                        }, () -> {
+                            throw new ResponseStatusException(
+                                    HttpStatus.NOT_FOUND,
+                                    "User not found with ID: " + id
+                            );
+                        }
+                );
+        return new ResponseEntity<>(ResponseUtil.success(
+                HttpStatus.OK.value(), null
+        ), HttpStatus.OK);
+    }
+
+    void matchRole(String name){
+        switch (name){
+            case ("FINANCE_OFFICER"):
+                name = Role.FINANCE_OFFICER.toString();
+                break;
+            case ("DEPARTMENT_HEAD"):
+                name = Role.DEPARTMENT_HEAD.toString();
+                break;
+            case ("ADMIN"):
+                name = Role.ADMIN.toString();
+                break;
+            default:
+                name = Role.TEACHER.toString();
+                break;
+        }
+    }
+
+    public Role validateRole(String input) {
+        try {
+            return Role.valueOf(input.toUpperCase()); // Case-insensitive
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid role. Valid roles: " + Arrays.toString(Role.values())
+            );
+        }
     }
 }

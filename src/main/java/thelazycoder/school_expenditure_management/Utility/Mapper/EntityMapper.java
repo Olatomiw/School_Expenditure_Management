@@ -4,13 +4,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import thelazycoder.school_expenditure_management.DTO.Request.DepartmentDto;
 import thelazycoder.school_expenditure_management.DTO.Request.UserDto;
+import thelazycoder.school_expenditure_management.DTO.Request.VendorDto;
+import thelazycoder.school_expenditure_management.DTO.Response.VendorResponse;
 import thelazycoder.school_expenditure_management.Model.Department;
 import thelazycoder.school_expenditure_management.Model.User;
-import thelazycoder.school_expenditure_management.Model.UserResponse;
+import thelazycoder.school_expenditure_management.DTO.Response.UserResponse;
+import thelazycoder.school_expenditure_management.Model.Vendor;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Component
 public class EntityMapper {
@@ -27,14 +28,14 @@ public class EntityMapper {
         user.setLastname(userDto.lastname());
         user.setEmail(userDto.email());
         user.setPassword(passwordEncoder.encode(userDto.password()));
-        user.setRole(User.Role.ADMIN);
+        user.setRole(User.Role.TEACHER);
         user.setUsername(userDto.username());
         return user;
     }
 
     public UserResponse mapUserToUserResponse(User user) {
         return new UserResponse(
-                user.getFirstname(), user.getLastname(), user.getUsername(), user.getEmail(), null
+                user.getFirstname(), user.getLastname(), user.getUsername(), user.getEmail(), user.getRole()
         );
     }
     public Department mapperEntityToDepartment(DepartmentDto departmentDto) {
@@ -45,5 +46,23 @@ public class EntityMapper {
         department.setBudgetStartDate(LocalDate.now());
         department.setBudgetEndDate(LocalDate.now().plusMonths(3));
         return department;
+    }
+
+    public Vendor mapperEntityToVendor(VendorDto vendorDto) {
+        Vendor newVendor = new Vendor();
+        newVendor.setName(vendorDto.name());
+        newVendor.setAddress(vendorDto.address());
+        newVendor.setContactEmail(vendorDto.email());
+        newVendor.setPhoneNumber(vendorDto.phone());
+        newVendor.setTaxId(vendorDto.taxId());
+        return newVendor;
+    }
+
+    public VendorResponse mapperEntitytoVendorResponse(Vendor vendor){
+        return new VendorResponse(
+                vendor.getId(), vendor.getName(),
+                vendor.getContactEmail(), vendor.getPhoneNumber(),
+                vendor.getAddress(), vendor.getAddress()
+        );
     }
 }

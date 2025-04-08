@@ -1,4 +1,6 @@
-package thelazycoder.school_expenditure_management.Model;
+package thelazycoder.school_expenditure_management.DTO.Response;
+
+import thelazycoder.school_expenditure_management.Model.User;
 
 import java.io.Serializable;
 

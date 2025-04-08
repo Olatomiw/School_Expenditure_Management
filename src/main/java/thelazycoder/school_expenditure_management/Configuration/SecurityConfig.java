@@ -37,8 +37,10 @@ public class SecurityConfig {
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(e->e
-                        .requestMatchers("/api/user/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/department/create").hasRole("ADMIN")
+                        .requestMatchers("/api/vendor/create").hasRole("ADMIN")
+                        .requestMatchers("/api/user/updateRole/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .sessionManagement(e->e.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
