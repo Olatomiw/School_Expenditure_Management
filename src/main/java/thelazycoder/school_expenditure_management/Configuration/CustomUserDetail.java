@@ -1,10 +1,12 @@
 package thelazycoder.school_expenditure_management.Configuration;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import thelazycoder.school_expenditure_management.Model.User;
 
 import java.util.Collection;
+import java.util.Collections;
 
 public class CustomUserDetail implements UserDetails {
 
@@ -22,7 +24,7 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.singleton(new SimpleGrantedAuthority(role.name().startsWith("ROLE_") ? role.name() : "ROLE_" + role.name()));
     }
 
     @Override

@@ -38,7 +38,6 @@ public class Department {
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-
     public UUID getId() {
         return id;
     }

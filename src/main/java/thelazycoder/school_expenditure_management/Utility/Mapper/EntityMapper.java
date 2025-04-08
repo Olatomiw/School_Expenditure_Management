@@ -27,7 +27,7 @@ public class EntityMapper {
         user.setLastname(userDto.lastname());
         user.setEmail(userDto.email());
         user.setPassword(passwordEncoder.encode(userDto.password()));
-        user.setRole(userDto.role());
+        user.setRole(User.Role.ADMIN);
         user.setUsername(userDto.username());
         return user;
     }
