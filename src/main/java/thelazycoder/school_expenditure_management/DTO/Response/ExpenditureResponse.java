@@ -13,7 +13,7 @@ public record ExpenditureResponse(
         String receiptReference,
         LocalDateTime createdAt,
         DepartmentResponse department,
-        VendorResponse vendorResponse,
-        UserResponse userResponse
+        VendorResponse vendor,
+        UserResponse requestedBy
 ) {
 }

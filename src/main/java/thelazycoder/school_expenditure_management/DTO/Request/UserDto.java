@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import thelazycoder.school_expenditure_management.Model.User;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * DTO for {@link thelazycoder.school_expenditure_management.Model.User} **/
@@ -24,6 +25,8 @@ public record UserDto(
 
         @NotNull(message = "Email cannot be empty")
         @Email(message = "Enter a valid email address", regexp = "^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
-        String email
+        String email,
+        @NotNull(message = "Field cannot be null")
+        UUID departmentId
 ) implements Serializable {
 }

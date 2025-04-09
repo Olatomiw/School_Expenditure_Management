@@ -15,9 +15,11 @@ import thelazycoder.school_expenditure_management.DTO.Request.AuthDto;
 import thelazycoder.school_expenditure_management.DTO.Request.RoleUpdateRequest;
 import thelazycoder.school_expenditure_management.DTO.Request.UserDto;
 import thelazycoder.school_expenditure_management.DTO.Response.ApiResponse;
+import thelazycoder.school_expenditure_management.Model.Department;
 import thelazycoder.school_expenditure_management.Model.User;
 import thelazycoder.school_expenditure_management.DTO.Response.UserResponse;
 import thelazycoder.school_expenditure_management.Model.User.Role;
+import thelazycoder.school_expenditure_management.Repository.DepartmentRepository;
 import thelazycoder.school_expenditure_management.Repository.UserRepository;
 import thelazycoder.school_expenditure_management.Service.UserService;
 import thelazycoder.school_expenditure_management.Utility.Mapper.EntityMapper;
@@ -37,13 +39,17 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final JWTConfig jwtConfig;
     private static final Logger logger = Logger.getLogger(UserServiceImpl.class.getName());
+    private final DepartmentRepository departmentRepository;
+
 
     public UserServiceImpl(UserRepository userRepository, EntityMapper entityMapper,
-                           AuthenticationManager authenticationManager, JWTConfig jwtConfig) {
+                           AuthenticationManager authenticationManager, JWTConfig jwtConfig,
+                           DepartmentRepository departmentRepository) {
         this.userRepository = userRepository;
         this.entityMapper = entityMapper;
         this.authenticationManager = authenticationManager;
         this.jwtConfig = jwtConfig;
+        this.departmentRepository = departmentRepository;
     }
 
     @Override
@@ -53,6 +59,9 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Email already exists");
         }
         User user = entityMapper.mapperEntityToUser(userDto);
+        Department department = departmentRepository.findById(userDto.departmentId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Department not found"));
+        user.setDepartment(department);
         User save = userRepository.save(user);
         UserResponse userResponse = entityMapper.mapUserToUserResponse(save);
         ApiResponse<UserResponse> success = ResponseUtil.success(
@@ -99,23 +108,6 @@ public class UserServiceImpl implements UserService {
         ), HttpStatus.OK);
     }
 
-    void matchRole(String name){
-        switch (name){
-            case ("FINANCE_OFFICER"):
-                name = Role.FINANCE_OFFICER.toString();
-                break;
-            case ("DEPARTMENT_HEAD"):
-                name = Role.DEPARTMENT_HEAD.toString();
-                break;
-            case ("ADMIN"):
-                name = Role.ADMIN.toString();
-                break;
-            default:
-                name = Role.TEACHER.toString();
-                break;
-        }
-    }
-
     public Role validateRole(String input) {
         try {
             return Role.valueOf(input.toUpperCase()); // Case-insensitive
@@ -126,4 +118,6 @@ public class UserServiceImpl implements UserService {
             );
         }
     }
+
+
 }

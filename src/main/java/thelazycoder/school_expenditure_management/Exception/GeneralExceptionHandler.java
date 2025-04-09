@@ -1,11 +1,13 @@
 package thelazycoder.school_expenditure_management.Exception;
 
+import jakarta.persistence.EntityExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import thelazycoder.school_expenditure_management.Exception.Response.ErrorResponse;
+import thelazycoder.school_expenditure_management.Utility.ResponseUtil;
 
 import java.util.Map;
 
@@ -28,6 +30,11 @@ public class GeneralExceptionHandler {
     public ResponseEntity<?> handleGeneral(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "An unexpected error occurred"));
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<?> handleEntityExistsException(EntityNotFoundException e) {
+        return new ResponseEntity<>(ResponseUtil.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
 }

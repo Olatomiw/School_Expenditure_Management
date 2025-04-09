@@ -37,7 +37,7 @@ public class VendorServiceImpl implements VendorService {
                     throw new RuntimeException("Already existing vendor");
                 });
         Vendor save = vendorRepository.save(entityMapper.mapperEntityToVendor(validate));
-        VendorResponse vendorResponse = entityMapper.mapperEntitytoVendorResponse(save);
+        VendorResponse vendorResponse = entityMapper.maptoVendorResponse(save);
         return new ResponseEntity<>(ResponseUtil.success(HttpStatus.OK.value(), vendorResponse), HttpStatus.OK);
     }
 
@@ -46,7 +46,7 @@ public class VendorServiceImpl implements VendorService {
     public ResponseEntity<?> getAllVendors() {
         List<Vendor> all = vendorRepository.findAll();
         List<VendorResponse> vendorResponse = all.stream()
-                .map(entityMapper::mapperEntitytoVendorResponse).toList();
+                .map(entityMapper::maptoVendorResponse).toList();
         return new ResponseEntity<>(ResponseUtil.success(HttpStatus.OK.value(), vendorResponse), HttpStatus.OK);
     }
 }

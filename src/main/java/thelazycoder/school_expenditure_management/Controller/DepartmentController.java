@@ -1,11 +1,9 @@
 package thelazycoder.school_expenditure_management.Controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import thelazycoder.school_expenditure_management.DTO.Request.DepartmentDto;
+import thelazycoder.school_expenditure_management.DTO.Request.HodDto;
 import thelazycoder.school_expenditure_management.Service.DepartmentService;
 
 @RestController
@@ -21,5 +19,10 @@ public class DepartmentController {
     @PostMapping("/create")
     public ResponseEntity<?> addDepartment(@RequestBody DepartmentDto departmentDto) {
         return departmentService.addDepartment(departmentDto);
+    }
+
+    @PutMapping("/assignHoD")
+    public ResponseEntity<?> assignHoD(@RequestBody HodDto hodDto) {
+        return departmentService.assignDepartmentHead(hodDto);
     }
 }
