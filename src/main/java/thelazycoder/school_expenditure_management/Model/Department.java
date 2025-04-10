@@ -2,11 +2,12 @@ package thelazycoder.school_expenditure_management.Model;
 
 
 import jakarta.persistence.*;
-import lombok.Data;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -21,6 +22,9 @@ public class Department {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @OneToMany(mappedBy = "department") // One department to many users
+    private Set<User> members;
 
     @OneToOne
     @JoinColumn(name = "head_user_id")
@@ -100,5 +104,13 @@ public class Department {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Set<User> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Set<User> members) {
+        this.members = members;
     }
 }

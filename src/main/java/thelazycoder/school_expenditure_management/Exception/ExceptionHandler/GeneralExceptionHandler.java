@@ -1,12 +1,14 @@
-package thelazycoder.school_expenditure_management.Exception;
+package thelazycoder.school_expenditure_management.Exception.ExceptionHandler;
 
-import jakarta.persistence.EntityExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import thelazycoder.school_expenditure_management.Exception.EntityNotFoundException;
+import thelazycoder.school_expenditure_management.Exception.InvalidInputException;
 import thelazycoder.school_expenditure_management.Exception.Response.ErrorResponse;
+import thelazycoder.school_expenditure_management.Exception.UserNotInDepartmentException;
 import thelazycoder.school_expenditure_management.Utility.ResponseUtil;
 
 import java.util.Map;
@@ -37,4 +39,8 @@ public class GeneralExceptionHandler {
         return new ResponseEntity<>(ResponseUtil.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UserNotInDepartmentException.class)
+    public ResponseEntity<?> handleUserNotInDepartmentException(UserNotInDepartmentException e) {
+        return new ResponseEntity<>(ResponseUtil.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
 }

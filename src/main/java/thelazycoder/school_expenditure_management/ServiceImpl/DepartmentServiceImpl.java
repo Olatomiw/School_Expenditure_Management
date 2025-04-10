@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import thelazycoder.school_expenditure_management.DTO.Request.DepartmentDto;
 import thelazycoder.school_expenditure_management.DTO.Request.HodDto;
+import thelazycoder.school_expenditure_management.Exception.UserNotInDepartmentException;
 import thelazycoder.school_expenditure_management.Model.Department;
 import thelazycoder.school_expenditure_management.Model.User;
 import thelazycoder.school_expenditure_management.Repository.DepartmentRepository;
@@ -56,6 +57,9 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department department=departmentRepository.findById(hodDto.departmentId()).orElseThrow(
                 () -> new RuntimeException("Department not found")
         );
+        if(!department.equals(hod.getDepartment())) {
+            throw new UserNotInDepartmentException("User not in department " +department.getName());
+        }
         departmentRepository.findByHead(hod).ifPresent(
                 dept->{
                     throw new IllegalStateException("User is already a head of another department");
