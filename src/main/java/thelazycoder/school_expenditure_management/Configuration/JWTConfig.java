@@ -63,7 +63,7 @@ public class JWTConfig {
 
     private String generateToken(Map<String, Object> claims, String username) {
         Date createdDate = new Date(System.currentTimeMillis());
-        Date expiryDate = new Date(createdDate.getTime() + 6048000);
+        Date expiryDate = new Date(createdDate.getTime() + 60480000);
         return Jwts.builder()
                 .claims(claims)
                 .subject(username)

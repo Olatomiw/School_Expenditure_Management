@@ -30,11 +30,10 @@ public class InfoGetter {
     }
 
 
-    @Transactional(readOnly = true)
+    @Transactional
     public User getUser(UUID id) {
-        return userRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("User with id " + id + " not found")
-        );
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
     }
     @Transactional(readOnly = true)
     public Department getDepartment(UUID id) {
@@ -46,7 +45,8 @@ public class InfoGetter {
         return categoryRepository.findById(id).
                 orElseThrow(() -> new EntityNotFoundException("Category with id " + id + " not found"));
     }
-    @Transactional
+
+    @Transactional(readOnly = true)
     public Expenditure getExpenditure(UUID id) {
         return expenditureRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Expenditure with id " + id + " not found"));
@@ -58,7 +58,7 @@ public class InfoGetter {
                 .orElseThrow(() -> new EntityNotFoundException("Vendor with id " + id + " not found"));
     }
 
-    public User getLoggedUser(UUID id) {
+    public User getLoggedUser() {
         Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
         if(authentication.getPrincipal() instanceof UserDetails) {
             String email = authentication.getName();

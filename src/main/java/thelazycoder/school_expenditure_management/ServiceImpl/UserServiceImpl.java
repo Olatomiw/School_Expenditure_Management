@@ -15,6 +15,7 @@ import thelazycoder.school_expenditure_management.DTO.Request.AuthDto;
 import thelazycoder.school_expenditure_management.DTO.Request.RoleUpdateRequest;
 import thelazycoder.school_expenditure_management.DTO.Request.UserDto;
 import thelazycoder.school_expenditure_management.DTO.Response.ApiResponse;
+import thelazycoder.school_expenditure_management.Exception.BusinessException;
 import thelazycoder.school_expenditure_management.Model.Department;
 import thelazycoder.school_expenditure_management.Model.User;
 import thelazycoder.school_expenditure_management.DTO.Response.UserResponse;
@@ -94,6 +95,11 @@ public class UserServiceImpl implements UserService {
         userRepository.findById(id)
                 .ifPresentOrElse(
                         user -> {
+                            if (user.getRole() != Role.TEACHER) {
+                                throw new BusinessException("User is already a " + user.getRole()+
+                                        " in " + user.getDepartment().getName() + " Department. %/n"
+                                +" Remove from current head Position to change Role");
+                            }
                             user.setRole(Role.valueOf(role.toString()));
                             userRepository.save(user);
                         }, () -> {

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -35,8 +36,11 @@ public class User {
     private Role role;
 
     @ManyToOne
-    @JoinColumn(name = "department_id")
+    @JoinColumn(name = "department_id", nullable = false)
     private Department department;
+
+    @OneToMany(mappedBy = "requestedBy")
+    private List<Expenditure> requestedExpenditures;
 
     @Column(nullable = false)
     private Boolean active = true;
@@ -122,6 +126,14 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<Expenditure> getRequestedExpenditures() {
+        return requestedExpenditures;
+    }
+
+    public void setRequestedExpenditures(List<Expenditure> requestedExpenditures) {
+        this.requestedExpenditures = requestedExpenditures;
     }
 
     public enum Role {

@@ -2,6 +2,8 @@ package thelazycoder.school_expenditure_management.Model;
 
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -9,6 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "expenditure")
+@Data
 public class Expenditure {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -41,13 +44,35 @@ public class Expenditure {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Status status;
+    private Status status = Status.PENDING;
 
     @Column(length = 100)
     private String receiptReference;
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @ManyToOne
+    @JoinColumn(name = "dept_head_approver_id")
+    private User departmentApproval;
+
+    @ManyToOne
+    @JoinColumn(name = "finance_approver_id")
+    private User financeApprover;
+
+    @Column(length = 500)
+    private String rejectionReason;
+
+    private LocalDateTime deptApprovalDate;
+    private LocalDateTime financeApprovalDate;
+
+    public User getDepartmentApproval() {
+        return departmentApproval;
+    }
+
+    public void setDepartmentApproval(User departmentApproval) {
+        this.departmentApproval = departmentApproval;
+    }
 
     public UUID getId() {
         return id;
@@ -137,7 +162,40 @@ public class Expenditure {
         this.createdAt = createdAt;
     }
 
+    public User getFinanceApprover() {
+        return financeApprover;
+    }
+
+    public void setFinanceApprover(User financeApprover) {
+        this.financeApprover = financeApprover;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public LocalDateTime getDeptApprovalDate() {
+        return deptApprovalDate;
+    }
+
+    public void setDeptApprovalDate(LocalDateTime deptApprovalDate) {
+        this.deptApprovalDate = deptApprovalDate;
+    }
+
+    public LocalDateTime getFinanceApprovalDate() {
+        return financeApprovalDate;
+    }
+
+    public void setFinanceApprovalDate(LocalDateTime financeApprovalDate) {
+        this.financeApprovalDate = financeApprovalDate;
+    }
+
     public enum Status {
-        PENDING, APPROVED, REJECTED, PAID
+        PENDING, DEPT_APPROVED,
+        FINANCE_APPROVED, REJECTED, PAID
     }
 }

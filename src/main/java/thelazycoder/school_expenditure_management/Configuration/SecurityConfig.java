@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/department/create").hasRole("ADMIN")
                         .requestMatchers("/api/vendor/create").hasRole("ADMIN")
                         .requestMatchers("/api/user/updateRole/**").hasRole("ADMIN")
+                        .requestMatchers("/api/expenditure/finance_approval").hasRole("FINANCE_OFFICER")
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .sessionManagement(e->e.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
