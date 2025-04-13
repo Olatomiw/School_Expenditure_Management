@@ -116,5 +116,10 @@ public class ExpenditureServiceImpl implements ExpenditureService {
             throw new BusinessException("Requires department approval first");
 
         }
+        int n = 2;
+        for(int i =1; i <=10; i++){
+            var result = i * n;
+            System.out.println(n + "*" + i + "*" + result);
+        }
     }
 }
