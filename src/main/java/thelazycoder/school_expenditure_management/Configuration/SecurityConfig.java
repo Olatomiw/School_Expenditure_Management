@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(e->e
+                        .requestMatchers("/","/swagger-ui/**", "/v3/api-docs*/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/department/create").hasRole("ADMIN")
                         .requestMatchers("/api/vendor/create").hasRole("ADMIN")
