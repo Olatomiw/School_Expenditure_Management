@@ -1,0 +1,31 @@
+services:
+  postgres:
+    container_name: postgres-sql
+    image: postgres
+    environment:
+       POSTGRES_USER: username
+       POSTGRES_PASSWORD: password
+       POSTGRES_DB: school_expenditure
+    ports:
+      - "1234:5432"
+    networks:
+      - spring-boot-network
+  spring-boot-app:
+    container_name: expenditure-demo
+    image: exp/demo
+    environment:
+      SECRET_KEY: daf66e01593f61a15b857cf433aae03a005812b31234e149036bcc8dee755dcc
+    ports:
+      - "8088:8080"
+    networks:
+      - spring-boot-network
+    depends_on:
+      - postgres
+
+
+volumes:
+  postgres:
+
+networks:
+  spring-boot-network:
+    driver: bridge

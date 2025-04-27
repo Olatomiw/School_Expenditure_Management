@@ -7,9 +7,12 @@ import thelazycoder.school_expenditure_management.Model.Expenditure;
 
 import java.util.UUID;
 
+import static thelazycoder.school_expenditure_management.Model.Expenditure.*;
+
 public interface ExpenditureService {
 
     ResponseEntity<?> addExpenditure(ExpenditureDto expenditureDto);
     ResponseEntity<?> approveByDeptHead(ApprovalDto approvalDto);
     ResponseEntity<?>approveByFinance(ApprovalDto approvalDto);
+    ResponseEntity<?> getExpenditureByStatus(String status);
 }

@@ -21,8 +21,10 @@ import thelazycoder.school_expenditure_management.Utility.ResponseUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
+import static java.util.stream.Collectors.toList;
 import static thelazycoder.school_expenditure_management.Model.Expenditure.*;
 import static thelazycoder.school_expenditure_management.Model.Expenditure.Status.*;
 
@@ -92,34 +94,36 @@ public class ExpenditureServiceImpl implements ExpenditureService {
     public ResponseEntity<?> approveByFinance(ApprovalDto approvalDto) {
         Expenditure expenditure = infoGetter.getExpenditure(approvalDto.expenditureId());
         User loggedUser = infoGetter.getLoggedUser();
-        if (loggedUser.getDepartment() != expenditure.getDepartment()){
-            throw new UserNotInDepartmentException("You are not in the department");
-        }
         validateApprovalTransition(expenditure, FINANCE_APPROVED);
         expenditure.setStatus(FINANCE_APPROVED);
-        expenditure.setDepartmentApproval(loggedUser);
-        expenditure.setDeptApprovalDate(LocalDateTime.now());
+        expenditure.setFinanceApprover(loggedUser);
+        expenditure.setFinanceApprovalDate(LocalDateTime.now());
         Expenditure save = expenditureRepository.save(expenditure);
         ExpenditureResponse expResponse = entityMapper.mapToExpenditureResponse(save);
         return new ResponseEntity<>(ResponseUtil.success(HttpStatus.ACCEPTED.value(), expResponse), HttpStatus.OK);
 
     }
 
+    @Override
+    public ResponseEntity<?> getExpenditureByStatus(String status) {
+        Status status1 = Status.valueOf(status.toUpperCase());
+        List<Expenditure> allByStatus = expenditureRepository.findAllByStatus(status1);
+        List<ExpenditureResponse>responses = allByStatus.stream().map(
+                entityMapper::mapToExpenditureResponse
+        ).toList();
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
+
     private void validateApprovalTransition(Expenditure exp, Status targetStatus){
         if(exp.getStatus() == REJECTED){
             throw new BusinessException("Cannot Approve Expenditure");
         }
-        if (exp.getStatus()==FINANCE_APPROVED && targetStatus == DEPT_APPROVED){
+        if (exp.getStatus()==FINANCE_APPROVED && targetStatus != PENDING){
             throw new BusinessException("No need expenditure has received final approval");
         }
         if(targetStatus == FINANCE_APPROVED && exp.getStatus() != DEPT_APPROVED){
             throw new BusinessException("Requires department approval first");
 
-        }
-        int n = 2;
-        for(int i =1; i <=10; i++){
-            var result = i * n;
-            System.out.println(n + "*" + i + "*" + result);
         }
     }
 }

@@ -35,4 +35,8 @@ public class ExpenditureController {
         return expenditureService.approveByFinance(approval);
     }
 
+    @GetMapping("/status")
+    public ResponseEntity<?> getExpenditureByStatus(@RequestParam String status) {
+        return expenditureService.getExpenditureByStatus(status);
+    }
 }
