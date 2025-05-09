@@ -47,4 +47,8 @@ public class UserController {
         return department.map(entityMapper::mapToExpenditureResponse).orElse(null);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllUser(){
+        return userService.getAllUser();
+    }
 }

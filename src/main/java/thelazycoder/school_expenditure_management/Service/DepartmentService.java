@@ -8,4 +8,5 @@ public interface DepartmentService {
 
     ResponseEntity<?> addDepartment(DepartmentDto departmentDto);
     ResponseEntity<?> assignDepartmentHead(HodDto hodDto);
+    ResponseEntity<?> getAllDepartments();
 }

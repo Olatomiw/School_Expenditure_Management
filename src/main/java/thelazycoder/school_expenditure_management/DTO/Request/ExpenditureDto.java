@@ -13,6 +13,5 @@ public record ExpenditureDto(
        @NotNull UUID departmentId,
        @NotNull UUID categoryId,
        @NotNull UUID vendorId,
-       @NotNull UUID requestedById,
         String receiptReference
 ) {}

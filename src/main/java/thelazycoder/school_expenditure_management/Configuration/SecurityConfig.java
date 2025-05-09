@@ -33,11 +33,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(e->e
-                        .requestMatchers("/","/swagger-ui/**", "/v3/api-docs*/**").permitAll()
+                        .requestMatchers("/","/swagger-ui/**", "/v3/api-docs*/**", "/api/department/all").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/department/create").hasRole("ADMIN")
                         .requestMatchers("/api/vendor/create").hasRole("ADMIN")

@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import thelazycoder.school_expenditure_management.DTO.Request.DepartmentDto;
 import thelazycoder.school_expenditure_management.DTO.Request.HodDto;
+import thelazycoder.school_expenditure_management.DTO.Response.DepartmentResponse;
 import thelazycoder.school_expenditure_management.Exception.UserNotInDepartmentException;
 import thelazycoder.school_expenditure_management.Model.Department;
 import thelazycoder.school_expenditure_management.Model.User;
@@ -16,6 +17,7 @@ import thelazycoder.school_expenditure_management.Repository.UserRepository;
 import thelazycoder.school_expenditure_management.Service.DepartmentService;
 import thelazycoder.school_expenditure_management.Utility.Mapper.EntityMapper;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -71,5 +73,14 @@ public class DepartmentServiceImpl implements DepartmentService {
         department.setHead(hod);
         Department save = departmentRepository.save(department);
         return new ResponseEntity<>(save, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getAllDepartments() {
+        List<Department> all = departmentRepository.findAll();
+        List<DepartmentResponse> responses= all.stream().map(
+                entityMapper::mapToDepartmentResponse
+        ).toList();
+        return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 }

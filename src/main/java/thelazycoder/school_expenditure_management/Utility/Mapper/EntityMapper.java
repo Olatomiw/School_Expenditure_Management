@@ -32,7 +32,7 @@ public class EntityMapper {
     }
 
     public UserResponse mapUserToUserResponse(User user) {
-        return new UserResponse(
+        return new UserResponse(user.getId(),
                 user.getFirstname(), user.getLastname(), user.getUsername(), user.getEmail(), user.getRole()
         );
     }
@@ -91,11 +91,12 @@ public class EntityMapper {
     }
 
     public DepartmentResponse mapToDepartmentResponse(Department department) {
+        User head = department.getHead();
+        UserResponse headResponse = (head != null) ? mapUserToUserResponse(head) : null;
         return new DepartmentResponse(
                 department.getId(), department.getName(), department.getDescription(),
                 department.getTotalBudget(), department.getBudgetStartDate(), department.getBudgetEndDate(),
-                department.getCreatedAt(),
-                mapUserToUserResponse(department.getHead())
+                department.getCreatedAt(), headResponse
         );
     }
 }

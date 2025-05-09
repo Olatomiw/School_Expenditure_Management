@@ -25,4 +25,8 @@ public class DepartmentController {
     public ResponseEntity<?> assignHoD(@RequestBody HodDto hodDto) {
         return departmentService.assignDepartmentHead(hodDto);
     }
+    @GetMapping("/all")
+    public ResponseEntity<?>getAllDepartments() {
+        return departmentService.getAllDepartments();
+    }
 }

@@ -5,11 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import thelazycoder.school_expenditure_management.Exception.BusinessException;
-import thelazycoder.school_expenditure_management.Exception.EntityNotFoundException;
-import thelazycoder.school_expenditure_management.Exception.InvalidInputException;
+import thelazycoder.school_expenditure_management.Exception.*;
 import thelazycoder.school_expenditure_management.Exception.Response.ErrorResponse;
-import thelazycoder.school_expenditure_management.Exception.UserNotInDepartmentException;
 import thelazycoder.school_expenditure_management.Utility.ResponseUtil;
 
 import java.util.Map;
@@ -42,11 +39,15 @@ public class GeneralExceptionHandler {
 
     @ExceptionHandler(UserNotInDepartmentException.class)
     public ResponseEntity<?> handleUserNotInDepartmentException(UserNotInDepartmentException e) {
-        return new ResponseEntity<>(ResponseUtil.error(HttpStatus.FORBIDDEN.value(), e.getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResponseUtil.error(HttpStatus.FORBIDDEN.value(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<?> handleBusinessException(BusinessException ex){
         return new ResponseEntity<>(
                 ResponseUtil.error(HttpStatus.BAD_REQUEST.value(), ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<?> handleInsufficientBalance(InsufficientBalanceException ex){
+        return new ResponseEntity<>(ResponseUtil.error(HttpStatus.BAD_REQUEST.value(), ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }

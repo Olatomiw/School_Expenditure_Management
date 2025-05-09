@@ -39,4 +39,9 @@ public class ExpenditureController {
     public ResponseEntity<?> getExpenditureByStatus(@RequestParam String status) {
         return expenditureService.getExpenditureByStatus(status);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllExpenditure(){
+        return expenditureService.getAllExpenditure();
+    }
 }

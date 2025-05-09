@@ -16,4 +16,5 @@ public interface UserService {
     @Transactional
     ResponseEntity<?>login(AuthDto authDto);
     ResponseEntity<?> updateUserRole(UUID id, RoleUpdateRequest request);
+    ResponseEntity<?> getAllUser();
 }
