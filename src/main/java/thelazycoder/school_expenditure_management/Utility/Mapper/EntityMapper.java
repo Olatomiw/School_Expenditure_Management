@@ -32,8 +32,11 @@ public class EntityMapper {
     }
 
     public UserResponse mapUserToUserResponse(User user) {
+        if (user==null){
+            return null;
+        }
         return new UserResponse(user.getId(),
-                user.getFirstname(), user.getLastname(), user.getUsername(), user.getEmail(), user.getRole()
+                user.getFirstname(), user.getLastname(), user.getUsername(), user.getEmail(),user.getDepartment().getId(), user.getRole()
         );
     }
     public Department mapperEntityToDepartment(DepartmentDto departmentDto) {
@@ -41,6 +44,7 @@ public class EntityMapper {
         department.setName(departmentDto.name());
         department.setDescription(departmentDto.description());
         department.setTotalBudget(departmentDto.totalBudget());
+        department.setCurrentBalance(department.getTotalBudget());
         department.setBudgetStartDate(LocalDate.now());
         department.setBudgetEndDate(LocalDate.now().plusMonths(3));
         return department;
@@ -95,7 +99,7 @@ public class EntityMapper {
         UserResponse headResponse = (head != null) ? mapUserToUserResponse(head) : null;
         return new DepartmentResponse(
                 department.getId(), department.getName(), department.getDescription(),
-                department.getTotalBudget(), department.getBudgetStartDate(), department.getBudgetEndDate(),
+                department.getTotalBudget(),department.getCurrentBalance(), department.getBudgetStartDate(), department.getBudgetEndDate(),
                 department.getCreatedAt(), headResponse
         );
     }

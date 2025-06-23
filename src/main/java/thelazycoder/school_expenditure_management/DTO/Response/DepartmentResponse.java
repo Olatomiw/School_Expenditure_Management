@@ -11,6 +11,7 @@ public record DepartmentResponse(
         String name,
         String description,
         BigDecimal totalBudget,
+        BigDecimal balance,
         LocalDate budgetStartDate,
         LocalDate budgetEndDate,
         LocalDateTime createdAt,

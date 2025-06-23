@@ -10,6 +10,7 @@ import thelazycoder.school_expenditure_management.DTO.Request.ApprovalDto;
 import thelazycoder.school_expenditure_management.DTO.Request.ExpenditureDto;
 import thelazycoder.school_expenditure_management.DTO.Response.ExpenditureResponse;
 import thelazycoder.school_expenditure_management.Exception.BusinessException;
+import thelazycoder.school_expenditure_management.Exception.EntityNotFoundException;
 import thelazycoder.school_expenditure_management.Exception.InsufficientBalanceException;
 import thelazycoder.school_expenditure_management.Exception.UserNotInDepartmentException;
 import thelazycoder.school_expenditure_management.Model.*;
@@ -24,6 +25,9 @@ import thelazycoder.school_expenditure_management.Utility.ResponseUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 import static java.util.stream.Collectors.toList;
@@ -137,8 +141,18 @@ public class ExpenditureServiceImpl implements ExpenditureService {
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
-
-
+    @Transactional(readOnly = true)
+    @Override
+    public ResponseEntity<?> getDeptExpenditure(UUID deptId) {
+        List<Expenditure> allByDepartmentId = expenditureRepository.findAllByDepartmentId(deptId);
+        if (allByDepartmentId.isEmpty()){
+            throw new EntityNotFoundException("No Expenditure yet");
+        }
+        Set<ExpenditureResponse> responseSet=allByDepartmentId.stream().map(
+                entityMapper::mapToExpenditureResponse
+        ).collect(Collectors.toSet());
+        return new ResponseEntity<>(responseSet, HttpStatus.OK);
+    }
 
 
     private void validateApprovalTransition(Expenditure exp, Status targetStatus){

@@ -23,5 +23,7 @@ public interface ExpenditureRepository extends JpaRepository<Expenditure, UUID> 
 
     @Query("SELECT e FROM Expenditure e JOIN FETCH e.requestedBy WHERE e.status= :status")
     List<Expenditure> findAllByStatus(@Param("status") Status status);
+    @Query("SELECT e FROM Expenditure e JOIN FETCH e.requestedBy WHERE e.department.id =:deptId")
+    List<Expenditure>findAllByDepartmentId(@Param("deptId") UUID deptId);
 }
 

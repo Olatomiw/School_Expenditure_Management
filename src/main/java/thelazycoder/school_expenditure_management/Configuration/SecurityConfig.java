@@ -34,10 +34,13 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults())
+                .formLogin(form-> form.disable())
+                .httpBasic(basic -> basic.disable())
                 .authorizeHttpRequests(e->e
-                        .requestMatchers("/","/swagger-ui/**", "/v3/api-docs*/**", "/api/department/all").permitAll()
+                        .requestMatchers("/","/swagger-ui/**",
+                                "/v3/api-docs*/**",
+                                "/actuator/**",
+                                "/api/department/all").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/department/create").hasRole("ADMIN")
                         .requestMatchers("/api/vendor/create").hasRole("ADMIN")
@@ -51,10 +54,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository) {
-        return new CustomUserDetailsService(userRepository);
+        public UserDetailsService userDetailsService(UserRepository userRepository) {
+            return new CustomUserDetailsService(userRepository);
 
-    }
+        }
 
 //    @Bean
 //    public InMemoryUserDetailsManager userDetailsManager(){

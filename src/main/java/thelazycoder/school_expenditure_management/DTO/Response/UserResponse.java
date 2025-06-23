@@ -8,6 +8,6 @@ import java.util.UUID;
 /**
  * DTO for {@link User}
  */
-public record UserResponse(UUID id, String firstname, String lastname, String username, String email,
+public record UserResponse(UUID id, String firstname, String lastname, String username, String email, UUID departmentId,
                            User.Role role) implements Serializable {
 }

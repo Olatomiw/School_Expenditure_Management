@@ -4,6 +4,8 @@ import org.springframework.http.ResponseEntity;
 import thelazycoder.school_expenditure_management.DTO.Request.ApprovalDto;
 import thelazycoder.school_expenditure_management.DTO.Request.ExpenditureDto;
 
+import java.util.UUID;
+
 public interface ExpenditureService {
 
     ResponseEntity<?> addExpenditure(ExpenditureDto expenditureDto);
@@ -11,4 +13,5 @@ public interface ExpenditureService {
     ResponseEntity<?>approveByFinance(ApprovalDto approvalDto);
     ResponseEntity<?> getExpenditureByStatus(String status);
     ResponseEntity<?> getAllExpenditure();
+    ResponseEntity<?> getDeptExpenditure(UUID deptId);
 }
