@@ -52,7 +52,7 @@ public class InfoGetter {
                 .orElseThrow(() -> new EntityNotFoundException("Expenditure with id " + id + " not found"));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Vendor getVendor(UUID id) {
         return vendorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vendor with id " + id + " not found"));
@@ -67,5 +67,6 @@ public class InfoGetter {
         }
         throw new RuntimeException("Internal Error");
     }
+
 
 }

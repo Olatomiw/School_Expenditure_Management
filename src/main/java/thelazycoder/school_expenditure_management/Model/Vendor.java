@@ -18,10 +18,10 @@ public class Vendor {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 100)
+    @Column(length = 100, unique = true)
     private String contactEmail;
 
-    @Column(length = 20)
+    @Column(length = 20, unique = true)
     private String phoneNumber;
 
     @Column(length = 50)
@@ -30,7 +30,7 @@ public class Vendor {
     @Column(columnDefinition = "TEXT")
     private String address;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", unique = true)
     private String bankAccountDetails;
 
     @Column(length = 100)

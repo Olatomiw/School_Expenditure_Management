@@ -2,6 +2,8 @@ package thelazycoder.school_expenditure_management.Model;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 
 import java.math.BigDecimal;
@@ -12,6 +14,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "department")
+@Getter
+@Setter
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,6 +36,9 @@ public class Department {
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal totalBudget;
+
+    @Column(name = "current_balance", precision = 12, scale = 2)
+    private BigDecimal currentBalance;
 
     @Column(nullable = false)
     private LocalDate budgetStartDate;
@@ -113,4 +120,5 @@ public class Department {
     public void setMembers(Set<User> members) {
         this.members = members;
     }
+
 }

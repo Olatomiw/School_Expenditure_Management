@@ -1,6 +1,7 @@
 package thelazycoder.school_expenditure_management.ServiceImpl;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,7 @@ import thelazycoder.school_expenditure_management.DTO.Request.AuthDto;
 import thelazycoder.school_expenditure_management.DTO.Request.RoleUpdateRequest;
 import thelazycoder.school_expenditure_management.DTO.Request.UserDto;
 import thelazycoder.school_expenditure_management.DTO.Response.ApiResponse;
+import thelazycoder.school_expenditure_management.DTO.Response.AuthResponse;
 import thelazycoder.school_expenditure_management.Exception.BusinessException;
 import thelazycoder.school_expenditure_management.Model.Department;
 import thelazycoder.school_expenditure_management.Model.User;
@@ -27,6 +29,7 @@ import thelazycoder.school_expenditure_management.Utility.Mapper.EntityMapper;
 import thelazycoder.school_expenditure_management.Utility.ResponseUtil;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -78,14 +81,17 @@ public class UserServiceImpl implements UserService {
         Authentication authentication =authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authDto.email(), authDto.password())
         );
+        User user = null;
         if(authentication.isAuthenticated()){
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            userRepository.findByEmail(authentication.getName()).orElseThrow(
+           user = userRepository.findByEmail(authentication.getName()).orElseThrow(
                     () -> new RuntimeException("User Not Found")
             );
         }
         String token = jwtConfig.createToken(authentication);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+        assert user != null;
+        AuthResponse authResponse= new AuthResponse(token, entityMapper.mapUserToUserResponse(user));
+        return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
     @Transactional
@@ -112,6 +118,15 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(ResponseUtil.success(
                 HttpStatus.OK.value(), null
         ), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getAllUser() {
+        List<User> allUsers = userRepository.findAll(Sort.by(new Sort.Order(Sort.Direction.ASC, "firstname")));
+       List<UserResponse>userResponses= allUsers.stream().map(
+                entityMapper::mapUserToUserResponse
+        ).toList();
+        return new ResponseEntity<>(userResponses, HttpStatus.OK);
     }
 
     public Role validateRole(String input) {

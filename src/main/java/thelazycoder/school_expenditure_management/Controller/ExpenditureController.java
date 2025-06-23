@@ -8,6 +8,8 @@ import thelazycoder.school_expenditure_management.DTO.Request.ApprovalDto;
 import thelazycoder.school_expenditure_management.DTO.Request.ExpenditureDto;
 import thelazycoder.school_expenditure_management.Service.ExpenditureService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/expenditure")
 public class ExpenditureController {
@@ -35,4 +37,18 @@ public class ExpenditureController {
         return expenditureService.approveByFinance(approval);
     }
 
+    @GetMapping("/status")
+    public ResponseEntity<?> getExpenditureByStatus(@RequestParam String status) {
+        return expenditureService.getExpenditureByStatus(status);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllExpenditure(){
+        return expenditureService.getAllExpenditure();
+    }
+
+    @GetMapping("/deptId/{id}")
+    public ResponseEntity<?> getExpensesByDept(@PathVariable UUID id){
+        return expenditureService.getDeptExpenditure(id);
+    }
 }

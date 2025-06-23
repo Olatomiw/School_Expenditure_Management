@@ -10,8 +10,11 @@ import thelazycoder.school_expenditure_management.DTO.Request.ApprovalDto;
 import thelazycoder.school_expenditure_management.DTO.Request.ExpenditureDto;
 import thelazycoder.school_expenditure_management.DTO.Response.ExpenditureResponse;
 import thelazycoder.school_expenditure_management.Exception.BusinessException;
+import thelazycoder.school_expenditure_management.Exception.EntityNotFoundException;
+import thelazycoder.school_expenditure_management.Exception.InsufficientBalanceException;
 import thelazycoder.school_expenditure_management.Exception.UserNotInDepartmentException;
 import thelazycoder.school_expenditure_management.Model.*;
+import thelazycoder.school_expenditure_management.Repository.DepartmentRepository;
 import thelazycoder.school_expenditure_management.Repository.ExpenditureRepository;
 import thelazycoder.school_expenditure_management.Service.ExpenditureService;
 import thelazycoder.school_expenditure_management.Utility.GenericFieldValidator;
@@ -21,25 +24,31 @@ import thelazycoder.school_expenditure_management.Utility.ResponseUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 
+import static java.util.stream.Collectors.toList;
 import static thelazycoder.school_expenditure_management.Model.Expenditure.*;
 import static thelazycoder.school_expenditure_management.Model.Expenditure.Status.*;
 
 @Service
 public class ExpenditureServiceImpl implements ExpenditureService {
     private final ExpenditureRepository expenditureRepository;
-    private final GenericFieldValidator genericFieldValidator;
     private final EntityMapper entityMapper;
     private final InfoGetter infoGetter;
+    private final DepartmentRepository departmentRepository;
 
     public ExpenditureServiceImpl(ExpenditureRepository expenditureRepository,
-                                  GenericFieldValidator genericFieldValidator, EntityMapper entityMapper,
-                                  InfoGetter infoGetter) {
+                                  EntityMapper entityMapper,
+                                  InfoGetter infoGetter,
+                                  DepartmentRepository departmentRepository) {
         this.expenditureRepository = expenditureRepository;
-        this.genericFieldValidator = genericFieldValidator;
         this.entityMapper = entityMapper;
         this.infoGetter = infoGetter;
+        this.departmentRepository = departmentRepository;
     }
 
     @Transactional
@@ -48,15 +57,20 @@ public class ExpenditureServiceImpl implements ExpenditureService {
         Department dept = infoGetter.getDepartment(expDto.departmentId());
         Category category = infoGetter.getCategory(expDto.categoryId());
         Vendor vendor = infoGetter.getVendor(expDto.vendorId());
-        User user = infoGetter.getUser(expDto.requestedById());
+        User user = infoGetter.getLoggedUser();
 
+        if(!dept.getMembers().contains(user)) {
+            throw new UserNotInDepartmentException("User does not belong to this department");
+        }
         Boolean exists = expenditureRepository.existsByDescriptionAndAmountAndDateAndDepartmentId(expDto.description(),
                 expDto.amount(), LocalDate.now(), expDto.departmentId());
 
         if (exists){
             throw new ResponseStatusException(HttpStatus.CONFLICT,"Duplicate expenditure detected");
         }
-
+        if(dept.getCurrentBalance().compareTo(expDto.amount())< 0){
+            throw new InsufficientBalanceException("Insufficient Department Balance");
+        }
         Expenditure expenditure = entityMapper.mapToExpenditure(expDto);
         expenditure.setCategory(category);
         expenditure.setVendor(vendor);
@@ -92,34 +106,72 @@ public class ExpenditureServiceImpl implements ExpenditureService {
     public ResponseEntity<?> approveByFinance(ApprovalDto approvalDto) {
         Expenditure expenditure = infoGetter.getExpenditure(approvalDto.expenditureId());
         User loggedUser = infoGetter.getLoggedUser();
-        if (loggedUser.getDepartment() != expenditure.getDepartment()){
-            throw new UserNotInDepartmentException("You are not in the department");
-        }
         validateApprovalTransition(expenditure, FINANCE_APPROVED);
         expenditure.setStatus(FINANCE_APPROVED);
-        expenditure.setDepartmentApproval(loggedUser);
-        expenditure.setDeptApprovalDate(LocalDateTime.now());
+        expenditure.setFinanceApprover(loggedUser);
+        expenditure.setFinanceApprovalDate(LocalDateTime.now());
+        Department department = expenditure.getDepartment();
         Expenditure save = expenditureRepository.save(expenditure);
+        if (expenditure.getStatus() == FINANCE_APPROVED){
+            department.setCurrentBalance(department.getCurrentBalance().subtract(expenditure.getAmount()));
+            departmentRepository.save(department);
+        }
         ExpenditureResponse expResponse = entityMapper.mapToExpenditureResponse(save);
         return new ResponseEntity<>(ResponseUtil.success(HttpStatus.ACCEPTED.value(), expResponse), HttpStatus.OK);
 
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public ResponseEntity<?> getExpenditureByStatus(String status) {
+        Status status1 = Status.valueOf(status.toUpperCase());
+        List<Expenditure> allByStatus = expenditureRepository.findAllByStatus(status1);
+        List<ExpenditureResponse>responses = allByStatus.stream().map(
+                entityMapper::mapToExpenditureResponse
+        ).toList();
+
+        return new ResponseEntity<>(ResponseUtil.success(HttpStatus.OK.value(), responses), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getAllExpenditure() {
+        List<Expenditure> all = expenditureRepository.findAll();
+        List<ExpenditureResponse>responses = all.stream()
+                .map(entityMapper::mapToExpenditureResponse).toList();
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ResponseEntity<?> getDeptExpenditure(UUID deptId) {
+        List<Expenditure> allByDepartmentId = expenditureRepository.findAllByDepartmentId(deptId);
+        if (allByDepartmentId.isEmpty()){
+            throw new EntityNotFoundException("No Expenditure yet");
+        }
+        Set<ExpenditureResponse> responseSet=allByDepartmentId.stream().map(
+                entityMapper::mapToExpenditureResponse
+        ).collect(Collectors.toSet());
+        return new ResponseEntity<>(responseSet, HttpStatus.OK);
+    }
+
+
     private void validateApprovalTransition(Expenditure exp, Status targetStatus){
         if(exp.getStatus() == REJECTED){
             throw new BusinessException("Cannot Approve Expenditure");
         }
-        if (exp.getStatus()==FINANCE_APPROVED && targetStatus == DEPT_APPROVED){
+        Department department = exp.getDepartment();
+        if (department.getCurrentBalance().compareTo(exp.getAmount()) < 0){
+            exp.setStatus(REJECTED);
+            exp.setRejectionReason("Insufficient Balance");
+            expenditureRepository.save(exp);
+            throw new InsufficientBalanceException("Insufficient Balance");
+        }
+        if (exp.getStatus()==FINANCE_APPROVED && targetStatus != PENDING){
             throw new BusinessException("No need expenditure has received final approval");
         }
         if(targetStatus == FINANCE_APPROVED && exp.getStatus() != DEPT_APPROVED){
             throw new BusinessException("Requires department approval first");
 
-        }
-        int n = 2;
-        for(int i =1; i <=10; i++){
-            var result = i * n;
-            System.out.println(n + "*" + i + "*" + result);
         }
     }
 }

@@ -7,14 +7,23 @@ import thelazycoder.school_expenditure_management.Model.Expenditure;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static thelazycoder.school_expenditure_management.Model.Expenditure.*;
 
 public interface ExpenditureRepository extends JpaRepository<Expenditure, UUID> {
 
     @Query("SELECT e FROM Expenditure e JOIN FETCH e.requestedBy WHERE e.id= :id")
     Optional<Expenditure> findById(@Param("id") UUID id);
 
-    Boolean existsByDescriptionAndAmountAndDateAndDepartmentId(String description, BigDecimal amount, LocalDate date, UUID department);
+    Boolean existsByDescriptionAndAmountAndDateAndDepartmentId(String description, BigDecimal amount,
+                                                               LocalDate date, UUID department);
+
+    @Query("SELECT e FROM Expenditure e JOIN FETCH e.requestedBy WHERE e.status= :status")
+    List<Expenditure> findAllByStatus(@Param("status") Status status);
+    @Query("SELECT e FROM Expenditure e JOIN FETCH e.requestedBy WHERE e.department.id =:deptId")
+    List<Expenditure>findAllByDepartmentId(@Param("deptId") UUID deptId);
 }
 
