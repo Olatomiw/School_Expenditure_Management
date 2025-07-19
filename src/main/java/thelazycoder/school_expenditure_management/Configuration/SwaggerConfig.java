@@ -1,49 +1,59 @@
+
 package thelazycoder.school_expenditure_management.Configuration;
 
+
+
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
-import org.springdoc.core.customizers.OpenApiCustomizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
-
+@Configuration
 public class SwaggerConfig {
 
-        @Bean
-        public OpenAPI customOpenAPI() {
-            return new OpenAPI()
-                    .info(new Info()
-                            .title("Blog API Documentation")
-                            .description("API documentation for the Blog application")
-                            .version("1.0.0")
-                            .contact(new Contact()
-                                    .name("The Lazy Coder")
-                                    .email("lazycoder@example.com"))
-                            .license(new License()
-                                    .name("Apache 2.0")
-                                    .url("http://springdoc.org")))
-                    .addSecurityItem(new SecurityRequirement().addList("bearer"))
-                    .externalDocs(new ExternalDocumentation()
-                            .description("Project Documentation")
-                            .url("https://thelazycoder.com/blog-api-docs"))
-                    .servers(List.of(
-                            new Server().url("http://localhost:8080").description("Development Server")
-                    ));
-        }
 
-        @Bean
-        public OpenApiCustomizer customizeSwagger() {
-            return openApi -> openApi.getPaths().forEach((path, pathItem) -> {
-                if (path.startsWith("/api/signup")) {  // Exempt public endpoints from security
-                    pathItem.readOperations().forEach(operation -> {
-                        operation.setSecurity(null);
-                    });
-                }
-            });
-        }
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .components(new Components()
+                        .addSecuritySchemes("bearer-key",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                        )
+                )
+                .info(new Info()
+                        .title("EatNow API")
+                        .description("EatNow is a platform for users to order food from various vendors.")
+                        .version("1.0.0")
+                        .contact(new Contact()
+                                .name("Team EatNow")
+                                .email("eatnow.ng@gmail.com")
+                        )
+                        .license(new License()
+                                .name("MIT")
+                                .url("https://opensource.org/licenses/MIT")
+                        )
+                )
+                .externalDocs(new ExternalDocumentation()
+                        .description("EatNow Documentation")
+                        .url("https://github.com/Hackthejobs-Eatnow/eatnow_backend")
+                )
+                .servers(List.of(
+                        new Server().url("http://localhost:8085").description("Localhost"),
+                        new Server().url("server2").description("Railway")
+                ))
+                .addSecurityItem(new SecurityRequirement().addList("bearer-key"));
+    }
 }
