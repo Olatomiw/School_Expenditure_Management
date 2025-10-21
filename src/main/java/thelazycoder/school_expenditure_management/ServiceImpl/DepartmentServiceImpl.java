@@ -42,17 +42,16 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Transactional
     @Override
-    public ResponseEntity<?> addDepartment(DepartmentDto departmentDto) {
+    public Department addDepartment(DepartmentDto departmentDto) {
          departmentRepository.findByName(departmentDto.name())
                 .ifPresent(department -> {
                     throw new ResponseStatusException(HttpStatus.CONFLICT,
                             String.format("Department with name %s already exists", departmentDto.name()));
                 });
 
-        Department save = departmentRepository.save(
+        return departmentRepository.save(
                 entityMapper.mapperEntityToDepartment(departmentDto)
         );
-        return new ResponseEntity<>(save, HttpStatus.OK);
     }
 
     @Transactional

@@ -1,6 +1,7 @@
 package thelazycoder.school_expenditure_management.Controller;
 
 import jakarta.validation.constraints.NotNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import thelazycoder.school_expenditure_management.DTO.Request.DepartmentDto;
@@ -21,7 +22,7 @@ public class DepartmentController {
 
     @PostMapping("/create")
     public ResponseEntity<?> addDepartment(@RequestBody DepartmentDto departmentDto) {
-        return departmentService.addDepartment(departmentDto);
+        return new ResponseEntity<>(departmentService.addDepartment(departmentDto), HttpStatus.OK);
     }
 
     @PutMapping("/assignHoD")

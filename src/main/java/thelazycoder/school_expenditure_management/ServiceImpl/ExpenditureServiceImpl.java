@@ -59,7 +59,7 @@ public class ExpenditureServiceImpl implements ExpenditureService {
         Vendor vendor = infoGetter.getVendor(expDto.vendorId());
         User user = infoGetter.getLoggedUser();
 
-        if(!dept.getMembers().contains(user)) {
+        if(dept.getMembers() != null && !dept.getMembers().contains(user)) {
             throw new UserNotInDepartmentException("User does not belong to this department");
         }
         Boolean exists = expenditureRepository.existsByDescriptionAndAmountAndDateAndDepartmentId(expDto.description(),
@@ -139,7 +139,7 @@ public class ExpenditureServiceImpl implements ExpenditureService {
         List<ExpenditureResponse>responses = all.stream()
                 .map(entityMapper::mapToExpenditureResponse).toList();
         return new ResponseEntity<>(responses, HttpStatus.OK);
-    }
+    } 
 
     @Transactional(readOnly = true)
     @Override
@@ -148,6 +148,7 @@ public class ExpenditureServiceImpl implements ExpenditureService {
         if (allByDepartmentId.isEmpty()){
             throw new EntityNotFoundException("No Expenditure yet");
         }
+
         Set<ExpenditureResponse> responseSet=allByDepartmentId.stream().map(
                 entityMapper::mapToExpenditureResponse
         ).collect(Collectors.toSet());

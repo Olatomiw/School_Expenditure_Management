@@ -27,6 +27,8 @@ import thelazycoder.school_expenditure_management.Utility.ResponseUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,17 +63,12 @@ public class ExpenditureServiceTest {
 
     @BeforeEach
     void setUp() {
-        expenditureDto = new ExpenditureDto(
-                "Microscope Purchase", new BigDecimal(20000),
-                UUID.fromString("11111111-1111-1111-1111-111111111111"),
-                UUID.fromString("22222222-2222-2222-2222-222222222222"),
-                UUID.fromString("33333333-3333-3333-3333-333333333333"),
-                null
-        );
         department = new Department();
         department.setId(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         department.setName("Microscope Purchase");
         department.setDescription("Microscope Purchase Description");
+        department.setTotalBudget(BigDecimal.valueOf(100000));
+        department.setCurrentBalance(BigDecimal.valueOf(100000));
         category = new Category();
         category.setId(UUID.fromString("22222222-2222-2222-2222-222222222222"));
         category.setName("Microscope Purchase");
@@ -81,6 +78,17 @@ public class ExpenditureServiceTest {
         vendor.setName("Microscope Vendor");
         user = new User();
         user.setId(UUID.fromString("44444444-4444-4444-4444-444444444444"));
+        user.setDepartment(department);
+
+        Set<User> members = new HashSet<>();
+        members.add(user);
+        department.setMembers(members);
+
+        expenditureDto = new ExpenditureDto(
+                "Microscope Purchase", new BigDecimal(20000),
+                department.getId(),category.getId(),vendor.getId(), null
+        );
+
         expenditure = new Expenditure();
         expenditure.setId(UUID.randomUUID());
         expenditure.setCategory(category);
@@ -104,7 +112,7 @@ public class ExpenditureServiceTest {
                 .thenReturn(department);
         when(infoGetter.getCategory(category.getId())).thenReturn(category);
         when(infoGetter.getVendor(vendor.getId())).thenReturn(vendor);
-        when(infoGetter.getUser(user.getId())).thenReturn(user);
+        when(infoGetter.getLoggedUser()).thenReturn(user);
         when(mapper.mapToExpenditure(expenditureDto)).thenReturn(expenditure);
         when(expenditureRepository.save(any())).thenReturn(expenditure);
         when(mapper.mapToExpenditureResponse(expenditure)).thenReturn(expenditureResponse);
@@ -120,9 +128,12 @@ public class ExpenditureServiceTest {
 
     @Test
     void DuplicateEntityException(){
+        when(infoGetter.getDepartment(department.getId()))
+                .thenReturn(department);
         when(expenditureRepository.existsByDescriptionAndAmountAndDateAndDepartmentId(
                 expenditureDto.description(),expenditureDto.amount(), LocalDate.now(), expenditureDto.departmentId()
         )).thenReturn(true);
+        when(infoGetter.getLoggedUser()).thenReturn(user);
         assertThrows(ResponseStatusException.class, ()->{
             expenditureService.addExpenditure(expenditureDto);
         });

@@ -2,13 +2,16 @@ package thelazycoder.school_expenditure_management.Model;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,6 +19,8 @@ import java.util.UUID;
 @Table(name = "department")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -28,7 +33,7 @@ public class Department {
     private String description;
 
     @OneToMany(mappedBy = "department") // One department to many users
-    private Set<User> members;
+    private Set<User> members = new HashSet<>();
 
     @OneToOne
     @JoinColumn(name = "head_user_id")
